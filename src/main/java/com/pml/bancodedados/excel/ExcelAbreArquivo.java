@@ -84,7 +84,8 @@ public class ExcelAbreArquivo implements AcoesExcel{
         } catch(NumberFormatException e){
             Main.addTexto("\nErro na linha: " + linha);
         } catch (IOException ex) {
-            Logger.getLogger(ExcelAbreArquivo.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("eita porra");
+            
         }
         finally{
             Main.progressoConcluido();
