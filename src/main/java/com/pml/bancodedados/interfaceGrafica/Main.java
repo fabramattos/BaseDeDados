@@ -24,7 +24,7 @@ public class Main extends javax.swing.JFrame {
         progressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Gerador Base de Dados");
+        setTitle("Gerador Base de Dados v1.0.3");
         setResizable(false);
 
         button.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N

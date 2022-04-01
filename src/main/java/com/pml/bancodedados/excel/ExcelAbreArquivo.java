@@ -11,8 +11,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -84,7 +82,7 @@ public class ExcelAbreArquivo implements AcoesExcel{
         } catch(NumberFormatException e){
             Main.addTexto("\nErro na linha: " + linha);
         } catch (IOException ex) {
-            System.out.println("eita porra");
+            System.out.println("eita");
             
         }
         finally{

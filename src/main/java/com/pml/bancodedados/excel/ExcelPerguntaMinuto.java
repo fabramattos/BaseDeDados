@@ -13,12 +13,12 @@ import javax.swing.*;
 public class ExcelPerguntaMinuto implements AcoesExcel{
 
     public void executa() {
-        Main.progressoIndeterminado();
         Candle.hashCandleMinuto.clear();
         new JOptionPane().showMessageDialog(null, "Selecione o arquivo para MINUTO");
         int escolha;
         ExcelAbreArquivo excel = new ExcelAbreArquivo();
         do{
+            Main.progressoIndeterminado();
             excel.executa(this);
             Main.progressoAtualiza(1, 1);
             escolha = JOptionPane.showConfirmDialog(null,

@@ -1,13 +1,16 @@
 package com.pml.bancodedados.candle;
 
+import com.pml.bancodedados.ArquivosTemporarios.ArquivoTemp;
 import com.pml.bancodedados.excel.ExcelEscrevePlanilhaCandle;
 import com.pml.bancodedados.excel.ExcelGravaArquivo;
 import com.pml.bancodedados.excel.ExcelPerguntaDiario;
 import com.pml.bancodedados.excel.ExcelPerguntaMinuto;
 import com.pml.bancodedados.interfaceGrafica.Main;
+import java.io.Serializable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Felipe Mattos
  */
-public class Candle implements Comparable<Candle>{
+public class Candle implements Comparable<Candle>, Serializable{
 
     // Atributos
     public static HashSet<Candle> hashCandleMinuto = new HashSet<>();
@@ -130,16 +133,21 @@ public class Candle implements Comparable<Candle>{
     }
 
     private void geraCandleMinuto(){
-        Main.addTexto("\nGerando banco de dados \n");
+        Main.addTexto("\nGerando banco de dados\n");
         listaCandleMinuto.clear();
         listaCandleMinuto.addAll(hashCandleMinuto);
+        Main.addTexto("Ordenando candle minuto\n");
+        listaCandleMinuto.sort(Comparator.comparing(Candle::getData));
     }
 
     private void geraCandlesIndicadores(){
         geraCandleMinuto();
         listaCandleDiario.clear();
         listaCandleDiario.addAll(hashCandleDiario);
-        Main.addTexto("\nRelacionando indicador com base de dados\n");
+        Main.addTexto("Ordenando candle diário\n");
+        listaCandleDiario.sort(Comparator.comparing((Candle::getData)));
+        
+        Main.addTexto("\nAplicando indicador na base de dados\n");
         boolean tag = false;
         int i = 1;
         int k = 0;
@@ -171,6 +179,8 @@ public class Candle implements Comparable<Candle>{
         new ExcelPerguntaMinuto().executa();
         geraCandleMinuto();
         
+        geraArqTemp();
+        
         new ExcelEscrevePlanilhaCandle().executa();
         new ExcelGravaArquivo().executa();
         Main.addTexto("\n==================FIM DAS OPERAÇÕES=======================");
@@ -185,9 +195,16 @@ public class Candle implements Comparable<Candle>{
         new ExcelPerguntaDiario().executa();
         geraCandlesIndicadores();
         
+        geraArqTemp();
+        
         new ExcelEscrevePlanilhaCandle().executa();
         new ExcelGravaArquivo().executa();
         Main.addTexto("\n==================FIM DAS OPERAÇÕES=======================");
+    }
+
+    private void geraArqTemp() {
+        ArquivoTemp.apagaArquivosTemp();
+        ArquivoTemp.gravaArqTemp(listaCandleMinuto);
     }
 
 }
