@@ -43,7 +43,9 @@ public class ExcelEscrevePlanilhaCandle implements AcoesExcel{
                 List<Candle> listaCandle = (List<Candle>) ois.readObject();
                 geraExcel(sheetGravacao, listaCandle);
             }
-        }catch (IOException | ClassNotFoundException ex) {}
+        }catch (Exception ex) {
+            Main.addTexto(ex.toString());
+        }
     }
         
 
