@@ -2,7 +2,10 @@ package com.pml.bancodedados.interfaceGrafica;
 
 import com.pml.bancodedados.candle.Candle;
 
+
 public class Main extends javax.swing.JFrame {
+
+    private final String titulo = "Gerador Base de Dados v2.0.0";
 
     public Main() {
         initComponents();
@@ -24,7 +27,7 @@ public class Main extends javax.swing.JFrame {
         progressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Gerador Base de Dados v1.2.0");
+        setTitle(titulo);
         setResizable(false);
 
         button.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
@@ -162,5 +165,9 @@ public class Main extends javax.swing.JFrame {
     
     public static void progressoAtualiza(int atual) {
          progressBar.setValue(atual);
+    }
+    
+    public static void progressoIncrementa() {
+         progressBar.setValue(progressBar.getValue() + 1);
     }
 }

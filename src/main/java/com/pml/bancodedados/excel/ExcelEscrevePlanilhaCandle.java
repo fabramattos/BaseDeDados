@@ -5,80 +5,69 @@ import com.pml.bancodedados.candle.Candle;
 import com.pml.bancodedados.interfaceGrafica.Main;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import java.sql.Timestamp;
-import java.util.List;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelEscrevePlanilhaCandle implements AcoesExcel{
 
     // ARQUIVOS PARA GRAVAÇÃO
-    static XSSFWorkbook workbookGravacao;
-    static XSSFSheet sheetGravacao;
+    static SXSSFWorkbook workbookGravacao;
+    static SXSSFSheet sheetGravacao;
     static CellStyle styleNumerico, styleDataCompleta;
-    private String NOME_PLANILHA = "Rel. Candles";
-    private boolean criouCabecalho = false;
+    private final String NOME_PLANILHA = "Rel. Candles";
 
 
     public void executa() {
-        workbookGravacao = new XSSFWorkbook();
+        workbookGravacao = new SXSSFWorkbook();
         sheetGravacao = workbookGravacao.createSheet(NOME_PLANILHA);
+        preparaCabecalho();
         
         File file = (ArquivoTemp.getArquivoTemp()); 
         if(file == null)
             return;
         
-        try(InputStream is = new FileInputStream(file)){
-            while(is.available() != 0){
-                ObjectInputStream ois = new ObjectInputStream(is);
-                List<Candle> listaCandle = (List<Candle>) ois.readObject();
-                geraExcel(sheetGravacao, listaCandle);
+        try(FileInputStream is = new FileInputStream(file)){
+            ObjectInputStream ois = new ObjectInputStream(is);
+            Candle candle = null;
+            int linha = 1;
+            while((candle = (Candle)ois.readObject()) != null){
+                geraExcel(candle);
             }
         }catch (Exception ex) {
+            System.out.println(ex.toString());
             Main.addTexto(ex.toString());
         }
     }
         
 
-    private void geraExcel(XSSFSheet sheetGravacao, List<Candle> listaCandle) {
-        preparaCabecalho(sheetGravacao, listaCandle);
-        
-        int linha = sheetGravacao.getLastRowNum() + 1;
+    private void geraExcel(Candle candle) {
+        Row row = sheetGravacao.createRow(sheetGravacao.getLastRowNum() + 1);
         int coluna = 0;
-        Row row;
-        Cell cell;
-        Main.progressoAtualiza(listaCandle.size(), linha);
-        for(Candle candle : listaCandle){
-            row = sheetGravacao.createRow(linha++);
-            coluna = 0;
-            cell = row.createCell(coluna++);
-            cell.setCellValue(Timestamp.valueOf(candle.getData())); cell.setCellStyle(styleDataCompleta);
-            cell = row.createCell(coluna++);
-            cell.setCellValue(candle.getAbertura()); cell.setCellStyle(styleNumerico);
-            cell = row.createCell(coluna++);
-            cell.setCellValue(candle.getMaxima()); cell.setCellStyle(styleNumerico);
-            cell = row.createCell(coluna++);
-            cell.setCellValue(candle.getMinima()); cell.setCellStyle(styleNumerico);
-            cell = row.createCell(coluna++);
-            cell.setCellValue(candle.getFechamento()); cell.setCellStyle(styleNumerico);
-            cell = row.createCell(coluna++);
-            cell.setCellValue(candle.getIndicadorExtra()); cell.setCellStyle(styleNumerico);
-            cell = row.createCell(coluna++);
-            Main.progressoAtualiza(linha);
-        }
+        Cell cell = row.createCell(coluna++);
+        cell.setCellValue(Timestamp.valueOf(candle.getData())); cell.setCellStyle(styleDataCompleta);
+        cell = row.createCell(coluna++);
+        cell.setCellValue(candle.getAbertura()); cell.setCellStyle(styleNumerico);
+        cell = row.createCell(coluna++);
+        cell.setCellValue(candle.getMaxima()); cell.setCellStyle(styleNumerico);
+        cell = row.createCell(coluna++);
+        cell.setCellValue(candle.getMinima()); cell.setCellStyle(styleNumerico);
+        cell = row.createCell(coluna++);
+        cell.setCellValue(candle.getFechamento()); cell.setCellStyle(styleNumerico);
+        cell = row.createCell(coluna++);
+        cell.setCellValue(candle.getIndicadorExtra()); cell.setCellStyle(styleNumerico);
+        cell = row.createCell(coluna++);
+        Main.progressoIncrementa();
     }
 
     
-    private void configuraFormatacao(HSSFWorkbook workbookGravacao) {
+    private void configuraFormatacao() {
         CreationHelper createHelper = workbookGravacao.getCreationHelper();
         styleNumerico = workbookGravacao.createCellStyle();
         styleNumerico.setDataFormat(createHelper.createDataFormat().getFormat("0.00"));
@@ -87,11 +76,8 @@ public class ExcelEscrevePlanilhaCandle implements AcoesExcel{
         styleDataCompleta.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy HH:MM"));
     }
     
-    private void preparaCabecalho(XSSFSheet sheet, List<Candle> listaDiario) {
-        if(criouCabecalho)
-            return;
-        
-        Main.addTexto("\n\nPreparando planilha: " + sheetGravacao.getSheetName());
+    private void preparaCabecalho() {
+        Main.addTexto("\n\nPreparando planilha: " + NOME_PLANILHA);
          // TITULO RELATORIO CANDLES
         int linha = 0;
         int coluna = 0;
@@ -108,6 +94,7 @@ public class ExcelEscrevePlanilhaCandle implements AcoesExcel{
         cell.setCellValue("Fechamento");
         cell = row.createCell(coluna++);
         cell.setCellValue("Indicador");
-        criouCabecalho = true;
+        
+        configuraFormatacao();
     }
 }

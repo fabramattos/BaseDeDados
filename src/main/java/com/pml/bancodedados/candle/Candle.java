@@ -203,7 +203,6 @@ public class Candle implements Comparable<Candle>, Serializable{
     }
 
     private void geraArqTemp() {
-        ArquivoTemp.apagaArquivosTemp();
         ArquivoTemp.gravaArqTemp(listaCandleMinuto);
     }
 

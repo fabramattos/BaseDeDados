@@ -6,10 +6,13 @@
 package com.pml.bancodedados.ArquivosTemporarios;
 
 import com.pml.bancodedados.candle.Candle;
+import com.pml.bancodedados.interfaceGrafica.Main;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,21 +23,28 @@ import java.util.logging.Logger;
  */
 public class ArquivoTemp {
     
-    private static final String FILENAME = "BancoDeDados.temp";
-    private static File newTempDir = new File(System.getProperty("java.io.tmpdir"), "BancoDeDados");
-    private static final String NEWFILE = newTempDir.getAbsolutePath() + File.separator + FILENAME;
+    private static final String FILENAME = "BancoDeDados";
+    private static Path tmpFile;
     
     public static void gravaArqTemp(List<Candle> listaResumo){
-        newTempDir.mkdir();
-        newTempDir.deleteOnExit();
-        //System.out.println("Pasta: " + newTempDir.toPath());
+        if(tmpFile != null){
+            Main.addTexto("Deletando arquivo temporário\n");
+            tmpFile.toFile().delete();
+        }
         
-        File file = new File(NEWFILE);
-        file.deleteOnExit();
+        Main.addTexto("Criando arquivo temporário\n");
         try {
-            FileOutputStream fos = new FileOutputStream(file, true);
+            tmpFile = Files.createTempFile(FILENAME, null);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        try (FileOutputStream fos = new FileOutputStream(tmpFile.toFile(), true)){
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(listaResumo);
+            Main.addTexto("Escrevendo dados no arquivo temporário\n");
+            for(Candle candle : listaResumo){
+                oos.writeObject(candle);
+            }
             oos.close();
         } catch (IOException ex) {
             Logger.getLogger(ArquivoTemp.class.getName()).log(Level.SEVERE, null, ex);
@@ -42,15 +52,6 @@ public class ArquivoTemp {
     }
     
     public static File getArquivoTemp(){
-        return new File(NEWFILE);
+        return tmpFile.toFile();
     }
-    
-    public static void apagaArquivosTemp(){
-        File file = new File(NEWFILE);
-        if(file.exists()){
-            file.delete();
-            System.out.println("arquivo apagado");
-        }
-    }
-    
 }
